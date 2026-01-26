@@ -27,14 +27,18 @@ Before you begin, decide which approach works best for you:
 3. **Management Tool:** Download [MySQL Workbench](https://dev.mysql.com/downloads/workbench/) to manage your data.
 
 ### 2. Docker Setup
+You can run it using a single command or a Docker Compose file.
+
+#### A. Single Command
 Run this command in your terminal:
 ```bash
-docker run -d \
-  --name my-mysql \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -p 3306:3306 \
-  -v mysql_data:/var/lib/mysql \
-  mysql:latest
+docker run -d --name my-mysql -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 -v mysql_data:/var/lib/mysql mysql:latest
+```
+
+#### B. Docker Compose (Alternative)
+If you prefer using Docker Compose, you can create a `compose-mysql.yml` file and paste the configuration found at the bottom of this guide. Then run:
+```bash
+docker compose -f compose-mysql.yml up -d
 ```
 
 **Explanation:**
@@ -57,14 +61,18 @@ docker run -d \
 4. **Management Tool:** [pgAdmin](https://www.pgadmin.org/download/) is included in most installers.
 
 ### 2. Docker Setup
+You can run it using a single command or a Docker Compose file.
+
+#### A. Single Command
 Run this command in your terminal:
 ```bash
-docker run -d \
-  --name my-postgres \
-  -e POSTGRES_PASSWORD=root \
-  -p 5432:5432 \
-  -v postgres_data:/var/lib/postgresql/data \
-  postgres:latest
+docker run -d --name my-postgres -e POSTGRES_PASSWORD=root -p 5432:5432 -v postgres_data:/var/lib/postgresql/data postgres:latest
+```
+
+#### B. Docker Compose (Alternative)
+If you prefer using Docker Compose, you can create a `compose-postgres.yml` file and paste the configuration found at the bottom of this guide. Then run:
+```bash
+docker compose -f compose-postgres.yml up -d
 ```
 
 **Explanation:**
@@ -91,6 +99,48 @@ Once your database is running, use these credentials to connect from your Java a
 - **Password:** (The one you set during setup)
 
 ---
+
+---
+
+## Docker Compose Configurations
+
+### MySQL Configuration
+Create a file named `compose-mysql.yml` and paste the following content:
+
+```yaml
+services:
+  mysql:
+    image: mysql:latest
+    container_name: my-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+```
+
+### PostgreSQL Configuration
+Create a file named `compose-postgres.yml` and paste the following content:
+
+```yaml
+services:
+  postgres:
+    image: postgres:latest
+    container_name: my-postgres
+    environment:
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+```
 
 ## Helpful Links for Beginners
 - [Official MySQL Documentation](https://dev.mysql.com/doc/)
