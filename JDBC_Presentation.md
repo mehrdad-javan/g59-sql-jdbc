@@ -23,10 +23,10 @@
 **JDBC (Java Database Connectivity)** is a Java API that enables Java applications to communicate with relational
 databases.
 
-JDBC is a **specification**, meaning it defines a set of standard Java interfaces that allow Java programs to access and
+Is a **specification**, meaning it defines a set of standard Java interfaces that allow Java programs to access and
 manipulate data stored in a database.
 
-JDBC acts as a **bridge** between a Java application and a database because Java programs and databases use **different
+Acts as a **bridge** between a Java application and a database because Java programs and databases use **different
 languages**.
 
 - Java applications use **Java (object-oriented language)**
