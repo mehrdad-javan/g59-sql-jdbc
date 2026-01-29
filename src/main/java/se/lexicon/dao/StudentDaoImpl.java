@@ -18,7 +18,6 @@ import java.util.Optional;
  */
 public class StudentDaoImpl implements StudentDao {
 
-    //DAO should not decide how connections are created — it should only use them.
     private final Connection connection;
 
     /**
@@ -40,7 +39,6 @@ public class StudentDaoImpl implements StudentDao {
 
         try (
                 PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-                // Statement.RETURN_GENERATED_KEYS is used to retrieve auto-generated ID values from INSERT statements
         ) {
             ps.setString(1, student.getName());
             ps.setString(2, student.getClassGroup());
@@ -83,8 +81,6 @@ public class StudentDaoImpl implements StudentDao {
                         rs.getTimestamp("create_date").toLocalDateTime()
                 ));
 
-                // or extract the map row to student as a helper method
-                //students.add(mapRowToStudent(rs));
             }
 
         } catch (SQLException e) {

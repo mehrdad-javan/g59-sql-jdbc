@@ -217,3 +217,33 @@ INSERT INTO attendance (student_id, attendance_date, status) VALUES
 -- It matches: student.id = attendance.student_id
 -- Result: you see the student info + their attendance on the same row.
 SELECT * FROM student s INNER JOIN attendance a ON s.id = a.student_id;
+
+
+
+
+-- OPTIONAL
+-- How to make changes temporary, then commit
+SET autocommit = 0;
+
+
+START TRANSACTION;
+
+-- Run your queries
+INSERT INTO student (name, class_group)
+VALUES ('Test Student', 'G1');
+
+UPDATE student
+SET class_group = 'G2'
+WHERE id = 1;
+
+-- At this point:
+-- Changes are visible in your session
+-- Not permanent yet
+
+-- Commit (make permanent)
+COMMIT;
+
+
+-- If something is wrong → Rollback
+ROLLBACK;
+-- This cancels everything since START TRANSACTION.
