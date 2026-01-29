@@ -2,11 +2,13 @@ package se.lexicon.dao;
 
 import se.lexicon.model.Attendance;
 
-public interface AttendanceDao {
-    Attendance save(Attendance attendance);
-    Attendance findAll();
+import java.util.List;
+import java.util.Optional;
 
-    Attendance findById(int id);
+public interface AttendanceDao {
+    Attendance save(Attendance attendance); // Create or Update
+    List<Attendance> findAll(); // Read all
+    Optional<Attendance> findById(int id); // Read by ID
     void update(Attendance attendance);
-    void delete(Attendance attendance);
+    boolean delete(int id);
 }

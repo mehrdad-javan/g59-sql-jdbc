@@ -1,38 +1,33 @@
 package se.lexicon.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class Attendance {
-
-    /*
-    id int AI PK
-    student_id int
-    attendance_date date
-    status enum('Present','Absent')
-     */
     private int id;
     private Student student;
-    private LocalDateTime attendanceDate;
-    private Status status;
+    private LocalDate attendanceDate;
+    private AttendanceStatus status;
 
-    public Attendance(Student student, LocalDateTime attendanceDate, Status status) {
-        this.student = student;
-        this.attendanceDate = attendanceDate;
-        this.status = status;
-    }
-
-    public Attendance(int id, Student student, Status status, LocalDateTime attendanceDate) {
+    // Constructor with parameters
+    public Attendance(int id, Student student, LocalDate attendanceDate, AttendanceStatus status) {
         this.id = id;
         this.student = student;
-        this.status = status;
         this.attendanceDate = attendanceDate;
+        this.status = status;
     }
 
-    public Attendance(Student student, Status status) {
+    public Attendance(Student student, LocalDate attendanceDate, AttendanceStatus status) {
+        this.student = student;
+        this.attendanceDate = attendanceDate;
+        this.status = status;
+    }
+
+    public Attendance(Student student, AttendanceStatus status) {
         this.student = student;
         this.status = status;
     }
 
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -49,22 +44,23 @@ public class Attendance {
         this.student = student;
     }
 
-    public LocalDateTime getAttendanceDate() {
+    public LocalDate getAttendanceDate() {
         return attendanceDate;
     }
 
-    public void setAttendanceDate(LocalDateTime attendanceDate) {
+    public void setAttendanceDate(LocalDate attendanceDate) {
         this.attendanceDate = attendanceDate;
     }
 
-    public Status getStatus() {
+    public AttendanceStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(AttendanceStatus status) {
         this.status = status;
     }
 
+    // toString() Method
     @Override
     public String toString() {
         return "Attendance{" +

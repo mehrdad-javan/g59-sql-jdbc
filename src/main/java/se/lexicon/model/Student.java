@@ -3,17 +3,12 @@ package se.lexicon.model;
 import java.time.LocalDateTime;
 
 public class Student {
-
     private int id;
     private String name;
     private String classGroup;
     private LocalDateTime createDate;
 
-    public Student(String name, String classGroup) {
-        this.name = name;
-        this.classGroup = classGroup;
-    }
-
+    // Constructor with parameters
     public Student(int id, String name, String classGroup, LocalDateTime createDate) {
         this.id = id;
         this.name = name;
@@ -21,6 +16,12 @@ public class Student {
         this.createDate = createDate;
     }
 
+    public Student(String name, String classGroup) {
+        this.name = name;
+        this.classGroup = classGroup;
+    }
+
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -53,6 +54,7 @@ public class Student {
         this.createDate = createDate;
     }
 
+    // toString() Method
     @Override
     public String toString() {
         return "Student{" +

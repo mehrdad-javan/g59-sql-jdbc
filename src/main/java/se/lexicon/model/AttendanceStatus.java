@@ -1,5 +1,5 @@
 package se.lexicon.model;
 
-public enum Status {
+public enum AttendanceStatus {
     PRESENT, ABSENT
 }

@@ -1,78 +1,182 @@
 package se.lexicon.dao;
 
-import se.lexicon.db.DatabaseConnection;
+
 import se.lexicon.model.Student;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * JDBC implementation of StudentDao.
+ * <p>
+ * This class demonstrates:
+ * - Using DataSource instead of DriverManager
+ * - Proper resource management using try-with-resources
+ * - Clear separation of concerns
+ */
 public class StudentDaoImpl implements StudentDao {
-    private Connection connection;
 
+    //DAO should not decide how connections are created — it should only use them.
+    private final Connection connection;
+
+    /**
+     * Connection is injected from outside.
+     * The DAO does NOT know how connections are created.
+     */
     public StudentDaoImpl(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * Saves a new student to the database.
+     * The database generates the ID automatically.
+     */
     @Override
     public Student save(Student student) {
+
+        String sql = "INSERT INTO student (name, class_group) VALUES (?, ?)";
+
         try (
-                PreparedStatement preparedStatement = connection.prepareStatement(
-                        "INSERT INTO student (name, class_group) VALUES (?, ?)",
-                        PreparedStatement.RETURN_GENERATED_KEYS);
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+                // Statement.RETURN_GENERATED_KEYS is used to retrieve auto-generated ID values from INSERT statements
         ) {
+            ps.setString(1, student.getName());
+            ps.setString(2, student.getClassGroup());
 
-            preparedStatement.setString(1, student.getName());
-            preparedStatement.setString(2, student.getClassGroup());
-            int affectedRows = preparedStatement.executeUpdate();
+            ps.executeUpdate();
 
-            if (affectedRows == 0) {
-                throw new SQLException("Creating student failed, no rows affected.");
-                // add custom exception as needed
-            }
-
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    student.setId(generatedKeys.getInt(1));
+            // Read auto-generated ID
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    student.setId(keys.getInt(1));
                 }
             }
 
         } catch (SQLException e) {
-            IO.println("Error saving student: " + e.getSQLState());
-            e.printStackTrace();
-            // add custom exception as needed
+            System.err.println("❌ Error saving student: " + e.getMessage());
+            throw new RuntimeException("Error saving student", e);
         }
 
-        return student; // Output: // name,classGroup
+        return student;
     }
 
+    /**
+     * Retrieves all students from the database.
+     */
     @Override
     public List<Student> findAll() {
-        List<Student> students = null;
-        try (
-                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM student");
-                ResultSet resultSet = preparedStatement.executeQuery();
-        ) {
-            students = new ArrayList<>();
 
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                String classGroup = resultSet.getString("class_group");
-                LocalDateTime createDate = resultSet.getTimestamp("create_date").toLocalDateTime();
-                Student student = new Student(id, name, classGroup, createDate);
-                students.add(student);
+        List<Student> students = new ArrayList<>();
+        String sql = "SELECT * FROM student";
+
+        try (
+                PreparedStatement ps = connection.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()
+        ) {
+            while (rs.next()) {
+                students.add(new Student(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("class_group"),
+                        rs.getTimestamp("create_date").toLocalDateTime()
+                ));
+
+                // or extract the map row to student as a helper method
+                //students.add(mapRowToStudent(rs));
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            // throw a custom exception if needed
+            System.err.println("❌ Error retrieving students: " + e.getMessage());
+            throw new RuntimeException("Error retrieving students", e);
         }
-        return students;
 
+        return students;
+    }
+
+    /**
+     * Retrieves a student by ID.
+     */
+    @Override
+    public Optional<Student> findById(int id) {
+
+        String sql = "SELECT * FROM student WHERE id = ?";
+
+        try (
+                PreparedStatement ps = connection.prepareStatement(sql)
+        ) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRowToStudent(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error retrieving student: " + e.getMessage());
+            throw new RuntimeException("Error retrieving student", e);
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Updates an existing student.
+     */
+    @Override
+    public void update(Student student) {
+
+        String sql = "UPDATE student SET name = ?, class_group = ? WHERE id = ?";
+
+        try (
+                PreparedStatement ps = connection.prepareStatement(sql)
+        ) {
+            ps.setString(1, student.getName());
+            ps.setString(2, student.getClassGroup());
+            ps.setInt(3, student.getId());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error updating student: " + e.getMessage());
+            throw new RuntimeException("Error updating student", e);
+        }
+    }
+
+    /**
+     * Deletes a student by ID.
+     */
+    @Override
+    public boolean delete(int id) {
+
+        String sql = "DELETE FROM student WHERE id = ?";
+
+        try (
+                PreparedStatement ps = connection.prepareStatement(sql)
+        ) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error deleting student: " + e.getMessage());
+            throw new RuntimeException("Error deleting student", e);
+        }
+
+    }
+
+    /**
+     * Maps a ResultSet row to a Student object.
+     * Keeps mapping logic in one place.
+     */
+    private Student mapRowToStudent(ResultSet rs) throws SQLException {
+
+        return new Student(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("class_group"),
+                rs.getTimestamp("create_date").toLocalDateTime()
+        );
     }
 }
